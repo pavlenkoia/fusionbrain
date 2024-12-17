@@ -1,0 +1,20 @@
+variables:
+  IMAGE_HUB: tiangroup/fusionbrain
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  image: docker:24.0.6
+  services:
+    - docker:24.0.6-dind
+  before_script:
+    - docker login -u tiangroup -p $DOCKERHUB_TOKEN
+  script:
+    - docker pull $IMAGE_HUB:latest || true
+    - docker build --cache-from $IMAGE_HUB:latest -f docker/Dockerfile -t $IMAGE_HUB:latest .
+    - docker push $IMAGE_HUB:latest
+  only:
+    - tags
