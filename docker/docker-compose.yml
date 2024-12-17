@@ -1,6 +1,7 @@
 services:
   fusionbrain:
     image: tiangroup/fusionbrain
+    restart: unless-stopped
     environment:
       - API_KEY
       - SECRET_KEY
@@ -11,11 +12,13 @@ services:
       - backend
   cloudflared:
     image: cloudflare/cloudflared:latest
+    restart: unless-stopped
     command: tunnel --no-autoupdate run --token $CF_TUNNELL_KEY
     networks:
       - backend
   watchtower:
     image: containrrr/watchtower
+    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: --debug --http-api-update

@@ -18,3 +18,13 @@ build:
     - docker push $IMAGE_HUB:latest
   only:
     - tags
+
+deploy:
+  stage: deploy
+  image: ubuntu
+  before_script:
+    - apt-get update -y && apt-get install curl -y
+  script:
+    - 'curl -H "Authorization: Bearer $WATCHTOWER_HTTP_API_TOKEN" $WATCHTOWER_HOST/v1/update'
+  only:
+    - tags
