@@ -82,6 +82,7 @@ module.exports = {
 
 				if (existsSync(imageFile)) {
 					return {
+						uuid,
 						image,
 						status: "DONE",
 					};
@@ -93,6 +94,7 @@ module.exports = {
 							let imgBuf = Buffer.from(task.images[0], "base64");
 							await writeFile(imageFile, imgBuf);
 							return {
+								uuid,
 								image,
 								status: "DONE",
 							};
