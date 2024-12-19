@@ -1,6 +1,6 @@
 {
   "name": "fusionbrain",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "My Moleculer-based microservices project",
   "scripts": {
     "dev": "moleculer-runner --repl --hot services/**/*.service.js --env",
