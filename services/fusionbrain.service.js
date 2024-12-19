@@ -12,34 +12,6 @@ module.exports = {
 	name: "fusionbrain",
 
 	actions: {
-		test: {
-			rest: "GET /test",
-			async handler(ctx) {
-				const fb = new FusionBrain(
-					process.env.API_KEY,
-					process.env.SECRET_KEY
-				);
-
-				const models = await fb.getModels();
-
-				let styles = await fb.getStyles();
-
-				let kandinsky = models[0].id;
-
-				if (await fb.isReady(kandinsky)) {
-					const prompt = "Dancing cat";
-
-					let generation = await fb.generate(kandinsky, prompt, {
-						style: styles[0].name,
-					});
-
-					return generation;
-				}
-
-				return "none";
-			},
-		},
-
 		generate: {
 			params: {
 				prompt: "string",
