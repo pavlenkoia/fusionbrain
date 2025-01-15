@@ -9,7 +9,10 @@
     "ci": "jest --watch",
     "test": "jest --coverage",
     "lint": "eslint services",
-    "postversion": "git push --tags && git push && echo \"Successfully released version $npm_package_version\""
+    "postversion": "git push --tags && git push && echo \"Successfully released version $npm_package_version\"",
+    "docs:dev": "vitepress dev docs --host 0.0.0.0",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "keywords": [
     "microservices",
@@ -20,7 +23,8 @@
     "eslint": "^8.25.0",
     "jest": "^27.5.1",
     "jest-cli": "^27.5.1",
-    "moleculer-repl": "^0.7.3"
+    "moleculer-repl": "^0.7.3",
+    "vitepress": "^1.5.0"
   },
   "dependencies": {
     "dotenv": "^16.4.7",

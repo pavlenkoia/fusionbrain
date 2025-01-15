@@ -64,3 +64,6 @@ typings/
 .idea
 
 public/images
+
+docs/.vitepress/dist
+docs/.vitepress/cache
