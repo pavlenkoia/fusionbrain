@@ -1,4 +1,8 @@
----
+# Fusionbrain API
+
+Сервис для генерации AI изображений с использованием официального API https://fusionbrain.ai/
+
+<!-- ---
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home
 
@@ -21,5 +25,4 @@ features:
     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
   - title: Feature C
     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
----
-
+--- -->

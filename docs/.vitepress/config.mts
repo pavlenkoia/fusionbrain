@@ -1,28 +1,48 @@
-import { defineConfig } from 'vitepress'
+import { defineConfig } from "vitepress";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Fusionbrain",
-  description: "A VitePress Site",
-  themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
-    nav: [
-      { text: 'Home', link: '/' },
-      { text: 'Examples', link: '/markdown-examples' }
-    ],
+	lang: "ru-RU",
+	title: "Fusionbrain API",
+	description: "Fusionbrain API",
+	locales: {
+		root: {
+			label: "Русский",
+			lang: "ru",
+		},
+	},
+	themeConfig: {
+		// https://vitepress.dev/reference/default-theme-config
 
-    sidebar: [
-      {
-        text: 'Examples',
-        items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/api-examples' }
-        ]
-      }
-    ],
+		nav: [
+			// { text: "Home", link: "/" },
+			// { text: "Examples", link: "/markdown-examples" },
+		],
 
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
-    ]
-  }
-})
+		sidebar: [
+			{
+				text: "Документация",
+				items: [
+					{ text: "Установка", link: "/install" },
+					{ text: "API", link: "/api" },
+				],
+			},
+		],
+
+		socialLinks: [
+			{
+				icon: "github",
+				link: "https://github.com/pavlenkoia/fusionbrain",
+			},
+		],
+
+		lastUpdatedText: "Последнее обновление",
+		outlineTitle: "На этой странице",
+		// returnToTop: 'Вернуться к началу',
+		// toggleSidebar: 'Переключить боковую панель',
+		docFooter: {
+			prev: "Предыдущая страница",
+			next: "Следующая страница",
+		},
+	},
+});
