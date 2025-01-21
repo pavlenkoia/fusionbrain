@@ -13,6 +13,8 @@ RUN yarn install --production
 
 COPY . .
 
+RUN yarn docs:build
+
 ENV NAMESPACE=FUSIONBRAIN
 ENV SERVICEDIR=services
 

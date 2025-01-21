@@ -2,6 +2,8 @@ import { defineConfig } from "vitepress";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+	outDir: "../public/docs",
+	base: "/docs/",
 	lang: "ru-RU",
 	title: "Fusionbrain API",
 	description: "Fusionbrain API",
@@ -38,8 +40,6 @@ export default defineConfig({
 
 		lastUpdatedText: "Последнее обновление",
 		outlineTitle: "На этой странице",
-		// returnToTop: 'Вернуться к началу',
-		// toggleSidebar: 'Переключить боковую панель',
 		docFooter: {
 			prev: "Предыдущая страница",
 			next: "Следующая страница",

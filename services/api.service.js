@@ -50,6 +50,7 @@ module.exports = {
 				aliases: {
 					"POST /generate": "fusionbrain.generate",
 					"POST /check": "fusionbrain.check",
+					"GET /generate/:uuid": "fusionbrain.check",
 				},
 
 				/**
