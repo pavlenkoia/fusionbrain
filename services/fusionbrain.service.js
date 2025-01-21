@@ -4,6 +4,7 @@ const { FusionBrain } = require("fusionbrain-api");
 const { writeFile } = require("node:fs/promises");
 const { existsSync } = require("fs");
 const fs = require("fs");
+const fsa = require("fs").promises;
 const path = require("path");
 
 const fb = new FusionBrain(process.env.API_KEY, process.env.SECRET_KEY);
@@ -37,6 +38,8 @@ module.exports = {
 						return task;
 					}
 				}
+
+				return { status: "FAILED" };
 			},
 		},
 
@@ -94,7 +97,7 @@ module.exports = {
 				files.forEach((file) => {
 					const filePath = path.join(folderPath, file);
 
-					fs.stat(filePath, (err, stats) => {
+					fs.stat(filePath, async (err, stats) => {
 						if (err) {
 							return;
 						}
@@ -103,7 +106,7 @@ module.exports = {
 							const fileAge = now - stats.mtimeMs; // Возраст файла в миллисекундах
 
 							if (fileAge > PERIOD_IN_MS) {
-								fs.unlink(filePath, () => {}); // Удаляем файл, игнорируя ошибки
+								await fsa.unlink(filePath, () => {}); // Удаляем файл, игнорируя ошибки
 							}
 						}
 					});
