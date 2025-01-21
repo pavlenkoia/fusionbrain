@@ -63,8 +63,9 @@ typings/
 # JetBrains IDE
 .idea
 
+.vscode
+
 public/images
 
 docs/.vitepress/dist
 docs/.vitepress/cache
-public/docs
