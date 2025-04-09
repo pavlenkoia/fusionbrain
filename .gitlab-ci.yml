@@ -17,7 +17,7 @@ build:
     - docker build --cache-from $IMAGE_HUB:latest -f docker/Dockerfile -t $IMAGE_HUB:latest .
     - docker push $IMAGE_HUB:latest
   only:
-    - tags
+    - master
 
 deploy:
   stage: deploy
@@ -27,4 +27,4 @@ deploy:
   script:
     - 'curl -H "Authorization: Bearer $WATCHTOWER_HTTP_API_TOKEN" $WATCHTOWER_HOST/v1/update'
   only:
-    - tags
+    - master
