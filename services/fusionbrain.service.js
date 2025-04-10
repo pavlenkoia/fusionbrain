@@ -26,7 +26,7 @@ module.exports = {
 				const kandinsky = models[0].id;
 				let style = styles[0].name;
 
-				if (/*await fb.isReady(kandinsky)*/true) {
+				if (await fb.isReady(kandinsky)) {
 					let generation = await fb.generate(kandinsky, prompt, {
 						style,
 						width: width || 768,
