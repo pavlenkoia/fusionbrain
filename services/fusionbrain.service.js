@@ -1,117 +1,135 @@
 "use strict";
 
-const { FusionBrain } = require("fusionbrain-api");
 const { writeFile } = require("node:fs/promises");
 const { existsSync } = require("fs");
 const fs = require("fs");
 const fsa = require("fs").promises;
 const path = require("path");
+const axios = require("axios");
+const FormData = require("form-data");
 
-const fb = new FusionBrain(process.env.API_KEY, process.env.SECRET_KEY);
+const API_URL = "https://api-key.fusionbrain.ai/";
+const API_KEY = process.env.API_KEY;
+const SECRET_KEY = process.env.SECRET_KEY;
+
+const authHeaders = {
+    "X-Key": `Key ${API_KEY}`,
+    "X-Secret": `Secret ${SECRET_KEY}`
+};
+
+async function getPipeline() {
+    const response = await axios.get(`${API_URL}key/api/v1/pipelines`, { headers: authHeaders });
+    return response.data[0].id;
+}
+
+async function generateImage(prompt, pipelineId, width = 1024, height = 1024) {
+    const form = new FormData();
+    const params = {
+        type: "GENERATE",
+        numImages: 1,
+        width,
+        height,
+        generateParams: {
+            query: prompt
+        }
+    };
+
+    form.append("pipeline_id", pipelineId);
+    form.append("params", JSON.stringify(params), { contentType: "application/json" });
+
+    const response = await axios.post(`${API_URL}key/api/v1/pipeline/run`, form, {
+        headers: {
+            ...form.getHeaders(),
+            ...authHeaders
+        }
+    });
+
+    return response.data.uuid;
+}
+
+async function checkGeneration(uuid) {
+    const response = await axios.get(`${API_URL}key/api/v1/pipeline/status/${uuid}`, { headers: authHeaders });
+    return response.data;
+}
 
 module.exports = {
-	name: "fusionbrain",
+    name: "fusionbrain",
 
-	actions: {
-		generate: {
-			params: {
-				prompt: "string",
-			},
-			async handler(ctx) {
-				const { prompt, width, height } = ctx.params;
+    actions: {
+        generate: {
+            params: {
+                prompt: "string"
+            },
+            async handler(ctx) {
+                try {
+                    const { prompt, width, height } = ctx.params;
+                    const pipelineId = await getPipeline();
+                    const uuid = await generateImage(prompt, pipelineId, width, height);
+                    
+                    return { uuid, status: "PROCESSING" };
+                } catch (error) {
+                    console.error("Generation error:", error);
+                    return { status: "FAILED" };
+                }
+            }
+        },
 
-				const models = await fb.getModels();
-				const styles = await fb.getStyles();
+        check: {
+            params: {
+                uuid: "string"
+            },
+            async handler(ctx) {
+                const { uuid } = ctx.params;
+                const imageFile = `public/images/${uuid}.jpg`;
+                const imageUrl = `${process.env.IMAGES_HOST}/images/${uuid}.jpg`;
 
-				const kandinsky = models[0].id;
-				let style = styles[0].name;
+                this.clearImages();
 
-				if (await fb.isReady(kandinsky)) {
-					let generation = await fb.generate(kandinsky, prompt, {
-						style,
-						width: width || 768,
-						height: height || 768,
-					});
-					if (generation.accepted === true) {
-						let task = generation.task;
+                if (existsSync(imageFile)) {
+                    return { uuid, image: imageUrl, status: "DONE" };
+                }
 
-						return task;
-					}
-				}
+                try {
+                    const task = await checkGeneration(uuid);
+                    
+                    if (task.status === "DONE") {
+                        const imgData = task.result.files[0];
+                        const imgBuffer = Buffer.from(imgData, "base64");
+                        await writeFile(imageFile, imgBuffer);
+                        return { uuid, image: imageUrl, status: "DONE" };
+                    }
+                    
+                    return { ...task, uuid };
+                } catch (error) {
+                    console.error("Check error:", error);
+                    return { uuid, status: "FAILED" };
+                }
+            }
+        }
+    },
 
-				return { status: "FAILED" };
-			},
-		},
+    methods: {
+        clearImages() {
+            const folderPath = "public/images";
+            const PERIOD_IN_MS = 20 * 60 * 1000;
+            const now = Date.now();
 
-		check: {
-			params: {
-				uuid: "string",
-			},
-			async handler(ctx) {
-				const { uuid } = ctx.params;
+            fs.readdir(folderPath, (err, files) => {
+                if (err) return;
 
-				const imageFile = `public/images/${uuid}.jpg`;
-				const image = `${process.env.IMAGES_HOST}/images/${uuid}.jpg`;
+                files.forEach(file => {
+                    const filePath = path.join(folderPath, file);
 
-				this.clearImages();
+                    fs.stat(filePath, async (err, stats) => {
+                        if (err || !stats.isFile()) return;
 
-				if (existsSync(imageFile)) {
-					return {
-						uuid,
-						image,
-						status: "DONE",
-					};
-				} else {
-					let task = await fb.checkTask(uuid);
-
-					if (task.isFinished()) {
-						if (task.isSuccess()) {
-							let imgBuf = Buffer.from(task.images[0], "base64");
-							await writeFile(imageFile, imgBuf);
-							return {
-								uuid,
-								image,
-								status: "DONE",
-							};
-						}
-					} else {
-						return task;
-					}
-				}
-			},
-		},
-	},
-
-	methods: {
-		clearImages() {
-			const folderPath = "public/images";
-			const PERIOD_IN_MS = 20 * 60 * 1000; // 20 минут
-
-			const now = Date.now();
-
-			fs.readdir(folderPath, (err, files) => {
-				if (err) {
-					return;
-				}
-
-				files.forEach((file) => {
-					const filePath = path.join(folderPath, file);
-
-					fs.stat(filePath, async (err, stats) => {
-						if (err) {
-							return;
-						}
-
-						if (stats.isFile()) {
-							const fileAge = now - stats.mtimeMs; // Возраст файла в миллисекундах
-
-							if (fileAge > PERIOD_IN_MS) {
-								await fsa.unlink(filePath, () => {}); // Удаляем файл, игнорируя ошибки
-							}
-						}
-					});
-				});
-			});
-		},
-	},
+                        const fileAge = now - stats.mtimeMs;
+                        if (fileAge > PERIOD_IN_MS) {
+                            await fsa.unlink(filePath).catch(() => {});
+                        }
+                    });
+                });
+            });
+        }
+    }
 };
